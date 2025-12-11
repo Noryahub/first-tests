@@ -36,10 +36,9 @@ export const Books = () => {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="text-sm uppercase tracking-[0.4em] text-slate-400">
-          Books Management
+        <p className="text-sm uppercase tracking-[0.4em] text-slate-900">
+          Livres disponibles
         </p>
-        <h1 className="text-2xl font-bold text-gray-900">Books</h1>
       </div>
       <div className="flex flex-wrap gap-6">
          {
@@ -55,7 +54,6 @@ export const Books = () => {
           ))
          }
       </div>
-      <BooksTab />
     </div>
   )
 }

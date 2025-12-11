@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { createBook } from "@/services/bookService";
+import { createBook, getAuthors } from "@/services/bookService";
 
 export default function AddBookModal({ categories, onBookAdded }) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [authors, setAuthors] = useState([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -18,7 +19,21 @@ export default function AddBookModal({ categories, onBookAdded }) {
     isbn: "",
     categoryId: "",
     imageUrl: "",
+    authorIds: [],
+    numExemplaires: "",
   });
+
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      try {
+        const authorsData = await getAuthors();
+        setAuthors(authorsData);
+      } catch (error) {
+        console.error("Error fetching authors:", error);
+      }
+    };
+    if (open) fetchAuthors();
+  }, [open]);
 
   const resetForm = () => {
     setForm({
@@ -28,6 +43,8 @@ export default function AddBookModal({ categories, onBookAdded }) {
       isbn: "",
       categoryId: "",
       imageUrl: "",
+      authorIds: [],
+      numExemplaires: "",
     });
     setPreview(null);
   };
@@ -56,6 +73,8 @@ export default function AddBookModal({ categories, onBookAdded }) {
         ...form,
         publishedYear: Number(form.publishedYear),
         categoryId: form.categoryId ? Number(form.categoryId) : null,
+        authorIds: form.authorIds.map(id => Number(id)),
+        numExemplaires: form.numExemplaires ? Number(form.numExemplaires) : 0,
       };
 
       await createBook(payload);
@@ -75,7 +94,7 @@ export default function AddBookModal({ categories, onBookAdded }) {
         <Button className="bg-blue-600 text-white">+ Add Book</Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Book</DialogTitle>
         </DialogHeader>
@@ -118,6 +137,34 @@ export default function AddBookModal({ categories, onBookAdded }) {
               </option>
             ))}
           </select>
+
+          {/* AUTHORS MULTI-SELECT */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium">Authors</label>
+            <select
+              multiple
+              className="border p-2 rounded-md"
+              value={form.authorIds}
+              onChange={(e) => {
+                const selected = Array.from(e.target.selectedOptions, option => option.value);
+                setForm({ ...form, authorIds: selected });
+              }}
+            >
+              {authors?.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* NUMBER OF EXEMPLAIRES */}
+          <Input
+            type="number"
+            placeholder="Number of exemplaires"
+            value={form.numExemplaires}
+            onChange={(e) => setForm({ ...form, numExemplaires: e.target.value })}
+          />
 
           {/* IMAGE UPLOAD */}
           <div className="flex flex-col gap-2">

@@ -51,7 +51,7 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
         <div className="relative">
           {/* Squelette de chargement pour l'image */}
           {!imageLoaded && (
-            <div className="w-full h-90 bg-muted animate-pulse" />
+            <div className="w-full h-100 bg-muted animate-pulse" />
           )}
           
           {/* Image du livre avec fallback en cas d'erreur */}
@@ -60,7 +60,7 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
               src={book.imageUrl || book.coverImage || "/placeholder-image.jpg"}
               alt={book.title}
               className={cn(
-                "w-full h-48 object-cover transition-opacity duration-300",
+                "w-full h-108 object-cover  transition-opacity duration-300",
                 imageLoaded ? "opacity-100" : "opacity-0 absolute"
               )}
               onLoad={() => setImageLoaded(true)}
@@ -106,20 +106,20 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
 
         </div>
         
-        <CardContent className="p-4">
+        <CardContent className="px-4">
           <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
             {book.title}
           </h3>
 
-          <div className="text-sm text-muted-foreground space-y-2">
+          <div className=" flex flex-row text-sm text-muted-foreground space-y-2">
             <div className="flex items-center gap-2">
               <FolderOpen className="w-4 h-4" />
-              <span>{book.author || "Auteur inconnu"}</span>
+              <span>{book.authors?.map(a => a.name).join(', ') || "Auteur inconnu"}</span>
             </div>
 
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
-              <span>{typeof book.availableCopies === "number" ? book.availableCopies : (book.copies?.length || 0)} exemplaires disponibles</span>
+              <span>{book.copies?.filter(c => c.status === 'AVAILABLE').length || 0} exemplaires disponibles</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
 
         </CardContent>
         
-        <CardFooter className="p-4 pt-0 flex gap-2">
+        <CardFooter className="p-2 pt-0 flex gap-2">
           <EditBookModal
              book={book}
           />

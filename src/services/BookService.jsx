@@ -52,11 +52,21 @@ export const AdminDeleteBook = async (id) =>{
 
 // get categories
 export const getCategories = async () => {
-    try {
-        const response = await api.get('/categories');
-        return response.data;
-    } catch (error) {
-        throw new Error("Erreur récupération des catégories");
-    }
+  try {
+    const response = await api.get('/categories');
+    return response.data;
+  } catch (error) {
+    throw new Error("Erreur récupération des catégories");
+  }
+};
+
+// get authors
+export const getAuthors = async () => {
+  try {
+    const response = await api.get('/authors');
+    return response.data;
+  } catch (error) {
+    throw new Error("Erreur récupération des auteurs");
+  }
 };
 
