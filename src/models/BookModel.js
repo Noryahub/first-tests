@@ -41,8 +41,8 @@ const Book = sequelize.define('Book', {
     type: DataTypes.INTEGER,
     allowNull: true,
     references:{
-      model:'Category',
-      id:'id'
+      model:'Categories',
+      key:'id'
     }
   },
 
@@ -50,7 +50,7 @@ const Book = sequelize.define('Book', {
     type: DataTypes.INTEGER,
     allowNull: true,
     references:{
-      model:'Edition',
+      model:'Editions',
       key:'id'
     }
   },
