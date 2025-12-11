@@ -45,8 +45,8 @@ class BookService {
 
   async delete(id) {
     try {
-      const deleted = await Book.destroy({ where: { id } });
-      if (deleted) {
+      const deleted = await bookRepository.delete(id);
+      if (deleted > 0) {
         return { message: 'Book deleted successfully' };
       }
       throw new Error('Book not found');

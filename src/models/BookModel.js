@@ -28,7 +28,7 @@ const Book = sequelize.define('Book', {
     unique: true,
   },
   imageUrl: {
-    type: DataTypes.TEXT,
+    type: DataTypes.TEXT('long'),
     allowNull: true,
   },
 
@@ -40,11 +40,19 @@ const Book = sequelize.define('Book', {
   categoryId: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    references:{
+      model:'Category',
+      id:'id'
+    }
   },
 
   editionId: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    references:{
+      model:'Edition',
+      key:'id'
+    }
   },
 
 }, {

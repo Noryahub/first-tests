@@ -27,13 +27,13 @@ Book.belongsTo(Category, { foreignKey: 'categoryId', as: 'category' });
 Book.belongsTo(Edition, { foreignKey: 'editionId', as: 'edition' });
 
 // Book has many Exemplaires
-Book.hasMany(Exemplaire, { foreignKey: 'bookId', as: 'copies' });
+Book.hasMany(Exemplaire, { foreignKey: 'bookId', as: 'copies', onDelete: 'CASCADE' });
 
 // Book has many Reservations
-Book.hasMany(Reservation, { foreignKey: 'bookId', as: 'reservations' });
+Book.hasMany(Reservation, { foreignKey: 'bookId', as: 'reservations', onDelete: 'CASCADE' });
 
 // Book belongs to many Authors through BookAuthor
-Book.belongsToMany(Author, { through: BookAuthor, foreignKey: 'bookId', as: 'authors' });
+Book.belongsToMany(Author, { through: BookAuthor, foreignKey: 'bookId', as: 'authors', onDelete: 'CASCADE' });
 
 // Author belongs to many Books through BookAuthor
 Author.belongsToMany(Book, { through: BookAuthor, foreignKey: 'authorId', as: 'books' });
