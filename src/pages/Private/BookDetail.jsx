@@ -4,7 +4,7 @@ import { getBookById } from "@/services/BookService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export const Notifications = () => {
+export const BookDetail = () => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -115,4 +115,4 @@ export const Notifications = () => {
   );
 };
 
-export default Notifications;
+export default BookDetail;

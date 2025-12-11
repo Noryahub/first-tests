@@ -11,8 +11,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Calendar, Edit, Eye, FolderOpen, Trash2 } from "lucide-react";
+import { Calendar, Edit, Eye, FolderOpen, Trash2, Info } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import EditBookModal from "@/components/EditBookModal"
 
 
@@ -20,6 +21,7 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const navigate = useNavigate();
   
   const handleImageError = () => {
     setImageError(true);
@@ -135,6 +137,15 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
         </CardContent>
         
         <CardFooter className="p-2 pt-0 flex gap-2">
+          <Button
+            size="sm"
+            onClick={() => navigate(`/private/notifications/${book.id}`)}
+            className="gap-2 bg-blue-600 hover:bg-blue-700"
+            disabled={isActionLoading}
+          >
+            <Info className="w-4 h-4" />
+            Détails
+          </Button>
           <EditBookModal
              book={book}
           />

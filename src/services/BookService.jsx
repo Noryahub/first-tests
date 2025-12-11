@@ -70,6 +70,36 @@ export const getAuthors = async () => {
   }
 };
 
+// create author
+export const createAuthor = async (authorData) => {
+  try {
+    const response = await api.post('/authors', authorData);
+    return response.data;
+  } catch (error) {
+    throw new Error("Erreur création auteur");
+  }
+};
+
+// update author
+export const updateAuthor = async (id, authorData) => {
+  try {
+    const response = await api.put(`/authors/${id}`, authorData);
+    return response.data;
+  } catch (error) {
+    throw new Error("Erreur mise à jour auteur");
+  }
+};
+
+// delete author
+export const deleteAuthor = async (id) => {
+  try {
+    const response = await api.delete(`/authors/${id}`);
+    return true;
+  } catch (error) {
+    throw new Error("Erreur suppression auteur");
+  }
+};
+
 // get editions
 export const getEditions = async () => {
   try {
@@ -77,6 +107,46 @@ export const getEditions = async () => {
     return response.data;
   } catch (error) {
     throw new Error("Erreur récupération des éditions");
+  }
+};
+
+// get exemplaires
+export const getExemplaires = async () => {
+  try {
+    const response = await api.get('/exemplaires');
+    return response.data;
+  } catch (error) {
+    throw new Error("Erreur récupération des exemplaires");
+  }
+};
+
+// create exemplaire
+export const createExemplaire = async (exemplaireData) => {
+  try {
+    const response = await api.post('/exemplaires', exemplaireData);
+    return response.data;
+  } catch (error) {
+    throw new Error("Erreur création exemplaire");
+  }
+};
+
+// update exemplaire
+export const updateExemplaire = async (id, exemplaireData) => {
+  try {
+    const response = await api.put(`/exemplaires/${id}`, exemplaireData);
+    return response.data;
+  } catch (error) {
+    throw new Error("Erreur mise à jour exemplaire");
+  }
+};
+
+// delete exemplaire
+export const deleteExemplaire = async (id) => {
+  try {
+    const response = await api.delete(`/exemplaires/${id}`);
+    return true;
+  } catch (error) {
+    throw new Error("Erreur suppression exemplaire");
   }
 };
 

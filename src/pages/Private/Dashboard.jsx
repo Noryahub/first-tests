@@ -6,6 +6,7 @@ import { UsersTab } from "@/components/UsersTab";
 import { BooksTab } from "@/components/BooksTab";
 import BasicBars from "@/components/BarCharts";
 import { AuthContext } from "@/context/ExpressAuthContext";
+import {ExemplairesTab} from "@/components/ExemplairesTab"
 export const Dashboard = () =>{
   // Récupération de l'utilisateur courant depuis le contexte de express
   const { user, loading } = React.useContext(AuthContext);
@@ -32,7 +33,7 @@ export const Dashboard = () =>{
           </div>
         </div>
         <div className="flex flex-row w-full py-4">
-          <div className="w-1/2 pr-2"></div>
+          <div className="w-1/2 pr-2"><ExemplairesTab/></div>
           <div className="w-1/2 "><BasicBars /></div>
         </div>
         </>

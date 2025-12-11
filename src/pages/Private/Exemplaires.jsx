@@ -1,12 +1,12 @@
 import { ExemplairesTab } from "@/components/ExemplairesTab";
 import React from "react";
 
-export const Orders = () => {
+export const Exemplaires = () => {
   return (
     <div className="flex flex-col gap-6">
       <div>
         <p className="text-sm uppercase tracking-[0.4em] text-slate-900">
-          Gestion des Orders
+          Gestion des Exemplaires
         </p>
       </div>
       <div>
@@ -16,4 +16,4 @@ export const Orders = () => {
   );
 };
 
-export default Orders;
+export default Exemplaires;

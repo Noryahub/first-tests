@@ -14,6 +14,7 @@ import { getBooks, getCategories, AdminDeleteBook } from "@/services/BookService
 export function BooksTab() {
   const [books, setBooks] = useState([])
   const [categories, setCategories] = useState([])
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     fetchBooks()
@@ -42,6 +43,11 @@ export function BooksTab() {
     fetchBooks()
   }
 
+  const filteredBooks = books.filter(book =>
+    book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    book.authors?.some(author => author.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  )
+
   const handleDelete = (id) => {
     const confirmDelete = window.confirm("Voulez-vous supprimer ce livre ?")
     if (confirmDelete) {
@@ -62,6 +68,16 @@ export function BooksTab() {
         />
       </div>
 
+      <div className="mt-4">
+        <input
+          type="text"
+          placeholder="Search by title or author..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+
       <div className="mt-6 overflow-hidden">
         <Table className="w-full text-sm">
           <TableHeader>
@@ -75,7 +91,7 @@ export function BooksTab() {
           </TableHeader>
 
           <TableBody>
-            {books.map((book) => (
+            {filteredBooks.map((book) => (
               <TableRow key={book.id} className="border-b dark:border-slate-800">
                 
                 {/* ID */}
@@ -85,7 +101,7 @@ export function BooksTab() {
                 <TableCell className="font-medium">{book.title}</TableCell>
 
                 {/* Available */}
-                <TableCell>{book.availableCopies || 0}</TableCell>
+                <TableCell>{book.copies?.filter(c => c.disponible === true).length || 0}</TableCell>
 
                 {/* IMAGE DISPLAY */}
                 <TableCell>
