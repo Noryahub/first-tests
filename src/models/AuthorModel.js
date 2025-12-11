@@ -20,4 +20,8 @@ const Author = sequelize.define('Author', {
   timestamps: false,
 });
 
+Author.associate = (models) => {
+  Author.belongsToMany(models.Book, { through: models.BookAuthor, foreignKey: 'authorId', as: 'books' });
+};
+
 export default Author;

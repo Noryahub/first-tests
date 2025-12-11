@@ -20,4 +20,8 @@ const Edition = sequelize.define('Edition', {
   timestamps: false,
 });
 
+Edition.associate = (models) => {
+  Edition.hasMany(models.Book, { foreignKey: 'editionId', as: 'books' });
+};
+
 export default Edition;

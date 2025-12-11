@@ -8,7 +8,7 @@ const Exemplaire = sequelize.define('Exemplaire', {
     autoIncrement: true,
   },
   etat: {
-    type: DataTypes.ENUM('neuf', 'bon', 'abîmé', 'très abîmé', 'perdu'),
+    type: DataTypes.ENUM('neuf', 'bon', 'abime', 'tres_abime', 'perdu'),
     defaultValue: 'neuf',
   },
   disponible: {
@@ -28,5 +28,10 @@ const Exemplaire = sequelize.define('Exemplaire', {
   tableName: 'Exemplaires',
   timestamps: false,
 });
+
+Exemplaire.associate = (models) => {
+  Exemplaire.belongsTo(models.Book, { foreignKey: 'bookId', as: 'book' });
+  Exemplaire.hasMany(models.Emprunt, { foreignKey: 'copyId', as: 'emprunts' });
+};
 
 export default Exemplaire;

@@ -28,4 +28,9 @@ const Reservation = sequelize.define('Reservation', {
   timestamps: false,
 });
 
+Reservation.associate = (models) => {
+  Reservation.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+  Reservation.belongsTo(models.Book, { foreignKey: 'bookId', as: 'book' });
+};
+
 export default Reservation;

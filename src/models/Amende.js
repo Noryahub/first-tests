@@ -28,4 +28,9 @@ const Amende = sequelize.define('Amende', {
   timestamps: false,
 });
 
+Amende.associate = (models) => {
+  Amende.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+  Amende.belongsTo(models.Emprunt, { foreignKey: 'loanId', as: 'loan' });
+};
+
 export default Amende;

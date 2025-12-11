@@ -45,9 +45,12 @@ const User = sequelize.define('User', {
   tableName: 'Users',
   timestamps: false,
 });
-User.belongsTo(User, {
-  as: 'creator',
-  foreignKey: 'createdBy',
-});
+
+User.associate = (models) => {
+  User.belongsTo(models.User, { as: 'creator', foreignKey: 'createdBy' });
+  User.hasMany(models.Emprunt, { foreignKey: 'userId', as: 'emprunts' });
+  User.hasMany(models.Reservation, { foreignKey: 'userId', as: 'reservations' });
+  User.hasMany(models.Amende, { foreignKey: 'userId', as: 'amendes' });
+};
 
 export default User;

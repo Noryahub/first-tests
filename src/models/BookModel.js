@@ -59,4 +59,13 @@ const Book = sequelize.define('Book', {
   tableName: 'Books',
   timestamps: false,
 });
+
+Book.associate = (models) => {
+  Book.belongsTo(models.Category, { foreignKey: 'categoryId', as: 'category' });
+  Book.belongsTo(models.Edition, { foreignKey: 'editionId', as: 'edition' });
+  Book.hasMany(models.Exemplaire, { foreignKey: 'bookId', as: 'copies', onDelete: 'CASCADE' });
+  Book.hasMany(models.Reservation, { foreignKey: 'bookId', as: 'reservations', onDelete: 'CASCADE' });
+  Book.belongsToMany(models.Author, { through: models.BookAuthor, foreignKey: 'bookId', as: 'authors', onDelete: 'CASCADE' });
+};
+
 export default Book;

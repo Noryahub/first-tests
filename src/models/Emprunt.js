@@ -32,4 +32,10 @@ const Emprunt = sequelize.define('Emprunt', {
   timestamps: false,
 });
 
+Emprunt.associate = (models) => {
+  Emprunt.belongsTo(models.Exemplaire, { foreignKey: 'copyId', as: 'copy' });
+  Emprunt.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+  Emprunt.hasMany(models.Amende, { foreignKey: 'loanId', as: 'amendes' });
+};
+
 export default Emprunt;
