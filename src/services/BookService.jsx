@@ -70,3 +70,13 @@ export const getAuthors = async () => {
   }
 };
 
+// get editions
+export const getEditions = async () => {
+  try {
+    const response = await api.get('/editions');
+    return response.data;
+  } catch (error) {
+    throw new Error("Erreur récupération des éditions");
+  }
+};
+

@@ -11,13 +11,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { AdminUpdateBooks, getAuthors } from "@/services/BookService";
+import { AdminUpdateBooks, getAuthors, getEditions } from "@/services/BookService";
 import { Edit } from "lucide-react";
 
 export default function EditBookModal({ book, categories, onBookUpdated }) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(null);
   const [authors, setAuthors] = useState([]);
+  const [editions, setEditions] = useState([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -25,9 +26,9 @@ export default function EditBookModal({ book, categories, onBookUpdated }) {
     publishedYear: "",
     isbn: "",
     categoryId: "",
+    editionId: "",
     imageUrl: "",
-    authorIds: [],
-    addExemplaires: "",
+    authors: [],
   });
 
   // Load book data into form when modal opens
@@ -40,18 +41,19 @@ export default function EditBookModal({ book, categories, onBookUpdated }) {
           publishedYear: book.publishedYear || "",
           isbn: book.isbn,
           categoryId: book.categoryId || "",
+          editionId: book.editionId || "",
           imageUrl: book.imageUrl || "",
-          authorIds: book.authors?.map(a => a.id.toString()) || [],
-          addExemplaires: "",
+          authors: book.authors?.map(a => a.id.toString()) || [],
         });
         setPreview(book.imageUrl || null);
       }
       if (open) {
         try {
-          const authorsData = await getAuthors();
+          const [authorsData, editionsData] = await Promise.all([getAuthors(), getEditions()]);
           setAuthors(authorsData);
+          setEditions(editionsData);
         } catch (error) {
-          console.error("Error fetching authors:", error);
+          console.error("Error fetching data:", error);
         }
       }
     };
@@ -77,8 +79,8 @@ export default function EditBookModal({ book, categories, onBookUpdated }) {
         ...form,
         publishedYear: Number(form.publishedYear),
         categoryId: form.categoryId ? Number(form.categoryId) : null,
-        authorIds: form.authorIds.map(id => Number(id)),
-        addExemplaires: form.addExemplaires ? Number(form.addExemplaires) : 0,
+        editionId: form.editionId ? Number(form.editionId) : null,
+        authors: form.authors.map(id => Number(id)),
       };
 
       await AdminUpdateBooks(book.id, payload);
@@ -145,16 +147,31 @@ export default function EditBookModal({ book, categories, onBookUpdated }) {
             ))}
           </select>
 
+          <select
+            className="border p-2 rounded-md"
+            value={form.editionId}
+            onChange={(e) =>
+              setForm({ ...form, editionId: e.target.value })
+            }
+          >
+            <option value="">Select edition</option>
+            {editions?.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.name}
+              </option>
+            ))}
+          </select>
+
           {/* AUTHORS MULTI-SELECT */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">Authors</label>
             <select
               multiple
               className="border p-2 rounded-md"
-              value={form.authorIds}
+              value={form.authors}
               onChange={(e) => {
                 const selected = Array.from(e.target.selectedOptions, option => option.value);
-                setForm({ ...form, authorIds: selected });
+                setForm({ ...form, authors: selected });
               }}
             >
               {authors?.map((a) => (
@@ -164,26 +181,6 @@ export default function EditBookModal({ book, categories, onBookUpdated }) {
               ))}
             </select>
           </div>
-
-          {/* EXISTING EXEMPLAIRES */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Existing Exemplaires ({book?.copies?.length || 0})</label>
-            <div className="border p-2 rounded-md max-h-32 overflow-y-auto">
-              {book?.copies?.map((copy) => (
-                <div key={copy.id} className="text-sm">
-                  ID: {copy.id} - Status: {copy.status} - Barcode: {copy.barcode}
-                </div>
-              )) || <div>No exemplaires</div>}
-            </div>
-          </div>
-
-          {/* ADD MORE EXEMPLAIRES */}
-          <Input
-            type="number"
-            placeholder="Add more exemplaires"
-            value={form.addExemplaires}
-            onChange={(e) => setForm({ ...form, addExemplaires: e.target.value })}
-          />
 
           {/* IMAGE UPLOAD */}
           <div className="flex flex-col gap-2">

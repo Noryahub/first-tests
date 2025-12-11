@@ -5,12 +5,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { createBook, getAuthors } from "@/services/bookService";
+import { createBook, getAuthors, getEditions } from "@/services/bookService";
 
 export default function AddBookModal({ categories, onBookAdded }) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(null);
   const [authors, setAuthors] = useState([]);
+  const [editions, setEditions] = useState([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -18,21 +19,22 @@ export default function AddBookModal({ categories, onBookAdded }) {
     publishedYear: "",
     isbn: "",
     categoryId: "",
+    editionId: "",
     imageUrl: "",
-    authorIds: [],
-    numExemplaires: "",
+    authors: [],
   });
 
   useEffect(() => {
-    const fetchAuthors = async () => {
+    const fetchData = async () => {
       try {
-        const authorsData = await getAuthors();
+        const [authorsData, editionsData] = await Promise.all([getAuthors(), getEditions()]);
         setAuthors(authorsData);
+        setEditions(editionsData);
       } catch (error) {
-        console.error("Error fetching authors:", error);
+        console.error("Error fetching data:", error);
       }
     };
-    if (open) fetchAuthors();
+    if (open) fetchData();
   }, [open]);
 
   const resetForm = () => {
@@ -42,9 +44,9 @@ export default function AddBookModal({ categories, onBookAdded }) {
       publishedYear: "",
       isbn: "",
       categoryId: "",
+      editionId: "",
       imageUrl: "",
-      authorIds: [],
-      numExemplaires: "",
+      authors: [],
     });
     setPreview(null);
   };
@@ -73,8 +75,8 @@ export default function AddBookModal({ categories, onBookAdded }) {
         ...form,
         publishedYear: Number(form.publishedYear),
         categoryId: form.categoryId ? Number(form.categoryId) : null,
-        authorIds: form.authorIds.map(id => Number(id)),
-        numExemplaires: form.numExemplaires ? Number(form.numExemplaires) : 0,
+        editionId: form.editionId ? Number(form.editionId) : null,
+        authors: form.authors.map(id => Number(id)),
       };
 
       await createBook(payload);
@@ -138,16 +140,30 @@ export default function AddBookModal({ categories, onBookAdded }) {
             ))}
           </select>
 
+          {/* EDITION SELECT */}
+          <select
+            className="border p-2 rounded-md"
+            value={form.editionId}
+            onChange={(e) => setForm({ ...form, editionId: e.target.value })}
+          >
+            <option value="">Select edition</option>
+            {editions?.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.name}
+              </option>
+            ))}
+          </select>
+
           {/* AUTHORS MULTI-SELECT */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">Authors</label>
             <select
               multiple
               className="border p-2 rounded-md"
-              value={form.authorIds}
+              value={form.authors}
               onChange={(e) => {
                 const selected = Array.from(e.target.selectedOptions, option => option.value);
-                setForm({ ...form, authorIds: selected });
+                setForm({ ...form, authors: selected });
               }}
             >
               {authors?.map((a) => (
@@ -157,14 +173,6 @@ export default function AddBookModal({ categories, onBookAdded }) {
               ))}
             </select>
           </div>
-
-          {/* NUMBER OF EXEMPLAIRES */}
-          <Input
-            type="number"
-            placeholder="Number of exemplaires"
-            value={form.numExemplaires}
-            onChange={(e) => setForm({ ...form, numExemplaires: e.target.value })}
-          />
 
           {/* IMAGE UPLOAD */}
           <div className="flex flex-col gap-2">

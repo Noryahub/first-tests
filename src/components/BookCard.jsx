@@ -119,7 +119,7 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
 
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
-              <span>{book.copies?.filter(c => c.status === 'AVAILABLE').length || 0} exemplaires disponibles</span>
+              <span>{book.copies?.filter(c => c.disponible === true).length || 0} exemplaires disponibles</span>
             </div>
 
             <div className="flex items-center gap-2">
