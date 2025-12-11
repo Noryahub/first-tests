@@ -3,9 +3,10 @@ import { BookCardUser } from "@/components/UserBookCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BadgeCheckIcon } from "lucide-react";
 import { getBooks } from "@/services/BookService";
-import { getEmpruntsByUser, returnEmprunt } from "@/services/EmpruntService";
-import { getReservationsByUser, cancelReservation } from "@/services/ResevationService";
+import { getEmpruntsByUser, returnEmprunt, createEmprunt } from "@/services/EmpruntService";
+import { getReservationsByUser, cancelReservation, createReservation } from "@/services/ResevationService";
 import { AuthContext } from "@/context/ExpressAuthContext";
 import { useContext } from "react";
 export const UserView = () => {
@@ -38,13 +39,58 @@ export const UserView = () => {
     };
 
     const handleBorrow = async (book) => {
-        // TODO: Implement borrow logic
-        alert(`Demande d'emprunt pour "${book.title}"`);
+        try {
+            // Find an available exemplaire
+            const availableCopy = book.copies?.find(copy => copy.disponible === true);
+
+            if (!availableCopy) {
+                alert("Aucun exemplaire disponible pour ce livre");
+                return;
+            }
+
+            // Calculate due date (30 days from now)
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 30);
+
+            // Create emprunt
+            await createEmprunt({
+                copyId: availableCopy.id,
+                userId: user.id,
+                dueDate: dueDate.toISOString().split('T')[0] // YYYY-MM-DD format
+            });
+
+            // Refresh data
+            fetchData();
+            alert(`Emprunt créé avec succès pour "${book.title}"`);
+        } catch (error) {
+            console.error("Error creating emprunt:", error);
+            alert("Erreur lors de la création de l'emprunt");
+        }
     };
 
     const handleReserve = async (book) => {
-        // TODO: Implement reserve logic
-        alert(`Demande de réservation pour "${book.title}"`);
+        try {
+            // Check if user already has a reservation for this book
+            const existingReservation = userReservations.find(res => res.bookId === book.id);
+
+            if (existingReservation) {
+                alert("Vous avez déjà une réservation pour ce livre");
+                return;
+            }
+
+            // Create reservation
+            await createReservation({
+                userId: user.id,
+                bookId: book.id
+            });
+
+            // Refresh data
+            fetchData();
+            alert(`Réservation créée avec succès pour "${book.title}"`);
+        } catch (error) {
+            console.error("Error creating reservation:", error);
+            alert("Erreur lors de la création de la réservation");
+        }
     };
 
     const handleReturn = async (loanId) => {
@@ -87,7 +133,7 @@ export const UserView = () => {
                             <h3 className="text-lg font-semibold">{user?.nom}</h3>
                             <p className="text-gray-600">{user?.email}</p>
                         </div>
-                        <Badge
+                         <Badge
                           className={`
                             px-2 py-1 text-xs font-semibold rounded-md flex items-center gap-1
                             ${
@@ -110,83 +156,34 @@ export const UserView = () => {
                     </div>
                 </CardContent>
             </Card>
-
+                    
             {/* Current Loans */}
-             <Card className="relative w-90 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+              <Card className="relative w-90 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
 
                 <CardHeader>
-                    <CardTitle>Mes Emprunts Actuels ({userLoans.length})</CardTitle>
+                    <CardTitle>Mes Emprunts Actuels</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {userLoans.length === 0 ? (
-                        <p className="text-gray-500">Aucun emprunt en cours</p>
-                    ) : (
-                        <div className="space-y-3">
-                            {userLoans.map((loan) => (
-                                <div key={loan.id} className="flex justify-between items-center p-3 border rounded">
-                                    <div>
-                                        <h4 className="font-medium">{loan.copy?.book?.title}</h4>
-                                        <p className="text-sm text-gray-600">
-                                            Emprunté le: {new Date(loan.loanDate).toLocaleDateString('fr-FR')}
-                                        </p>
-                                        <p className="text-sm text-gray-600">
-                                            À retourner avant: {new Date(loan.dueDate).toLocaleDateString('fr-FR')}
-                                        </p>
-                                    </div>
-                                    <Button
-                                        size="sm"
-                                        onClick={() => handleReturn(loan.id)}
-                                        className="bg-green-600 hover:bg-green-700"
-                                    >
-                                        Retourner
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <div className="text-center">
+                        <div className="text-3xl font-bold text-slate-700 mb-2">{userLoans.length}</div>
+                        <p className="text-gray-600">emprunt(s) en cours</p>
+                    </div>
                 </CardContent>
             </Card>
 
            {/* Current Reservations */}
-        <Card className="relative w-90 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+       <Card className="relative w-90 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
 
-                <CardHeader>
-                    <CardTitle>Mes Réservations ({userReservations.length})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {userReservations.length === 0 ? (
-                        <p className="text-gray-500">Aucune réservation</p>
-                    ) : (
-                        <div className="space-y-3">
-                            {userReservations.map((reservation) => (
-                                <div key={reservation.id} className="flex justify-between items-center p-3 border rounded">
-                                    <div>
-                                        <h4 className="font-medium">{reservation.book?.title}</h4>
-                                        <p className="text-sm text-gray-600">
-                                            Réservé le: {new Date(reservation.reservationDate).toLocaleDateString('fr-FR')}
-                                        </p>
-                                        <Badge variant={
-                                            reservation.status === 'CONFIRMED' ? 'default' :
-                                            reservation.status === 'CANCELLED' ? 'destructive' : 'secondary'
-                                        }>
-                                            {reservation.status}
-                                        </Badge>
-                                    </div>
-                                    {reservation.status === 'PENDING' && (
-                                        <Button
-                                            size="sm"
-                                            onClick={() => handleCancelReservation(reservation.id)}
-                                            variant="outline"
-                                        >
-                                            Annuler
-                                        </Button>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+               <CardHeader>
+                   <CardTitle>Mes Réservations</CardTitle>
+               </CardHeader>
+               <CardContent>
+                   <div className="text-center">
+                       <div className="text-3xl font-bold text-slate-700 mb-2">{userReservations.length}</div>
+                       <p className="text-gray-600">réservation(s) active(s)</p>
+                   </div>
+               </CardContent>
+           </Card>
 
             {/* Available Books */}
             <div className="gap-6">
@@ -196,8 +193,8 @@ export const UserView = () => {
                         <BookCardUser
                             key={book.id}
                             book={book}
-                            onBorrow={handleBorrow}
-                            onReserve={handleReserve}
+                            onBorrow={() => handleBorrow(book)}
+                            onReserve={() => handleReserve(book)}
                         />
                     ))}
                 </div>
