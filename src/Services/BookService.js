@@ -1,9 +1,35 @@
 import bookRepository from '../Repository/BookRepository.js';
+import { BookAuthor, Exemplaire } from '../models/associations.js';
 
 class BookService {
   async create(bookData) {
     try {
-      return await bookRepository.create(bookData);
+      const { authorIds, numExemplaires, ...bookFields } = bookData;
+      const book = await bookRepository.create(bookFields);
+
+      // Create BookAuthor associations
+      if (authorIds && authorIds.length > 0) {
+        const bookAuthors = authorIds.map(authorId => ({
+          bookId: book.id,
+          authorId: authorId,
+        }));
+        await BookAuthor.bulkCreate(bookAuthors);
+      }
+
+      // Create exemplaires
+      if (numExemplaires && numExemplaires > 0) {
+        const exemplaires = [];
+        for (let i = 0; i < numExemplaires; i++) {
+          exemplaires.push({
+            bookId: book.id,
+            barcode: `BK${book.id}EX${i + 1}`,
+            status: 'AVAILABLE',
+          });
+        }
+        await Exemplaire.bulkCreate(exemplaires);
+      }
+
+      return book;
     } catch (error) {
       throw new Error(`Error creating book: ${error.message}`);
     }
@@ -31,13 +57,41 @@ class BookService {
 
   async update(id, bookData) {
     try {
-      const updatedBook = await bookRepository.update(id, bookData, {
+      const { authorIds, addExemplaires, ...bookFields } = bookData;
+      const updatedBook = await bookRepository.update(id, bookFields, {
         include: ['category', 'edition', 'authors', 'copies', 'reservations'],
       });
-      if (updatedBook) {
-        return updatedBook;
+      if (!updatedBook) {
+        throw new Error('Book not found');
       }
-      throw new Error('Book not found');
+
+      // Update BookAuthor associations
+      if (authorIds !== undefined) {
+        await BookAuthor.destroy({ where: { bookId: id } });
+        if (authorIds.length > 0) {
+          const bookAuthors = authorIds.map(authorId => ({
+            bookId: id,
+            authorId: authorId,
+          }));
+          await BookAuthor.bulkCreate(bookAuthors);
+        }
+      }
+
+      // Add more exemplaires
+      if (addExemplaires && addExemplaires > 0) {
+        const existingCount = await Exemplaire.count({ where: { bookId: id } });
+        const exemplaires = [];
+        for (let i = 0; i < addExemplaires; i++) {
+          exemplaires.push({
+            bookId: id,
+            barcode: `BK${id}EX${existingCount + i + 1}`,
+            status: 'AVAILABLE',
+          });
+        }
+        await Exemplaire.bulkCreate(exemplaires);
+      }
+
+      return updatedBook;
     } catch (error) {
       throw new Error(`Error updating book: ${error.message}`);
     }

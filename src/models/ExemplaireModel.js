@@ -7,9 +7,13 @@ const Exemplaire = sequelize.define('Exemplaire', {
     primaryKey: true,
     autoIncrement: true,
   },
-  status: {
-    type: DataTypes.ENUM('AVAILABLE', 'BORROWED', 'LOST', 'RESERVED', 'DAMAGED'),
-    defaultValue: 'AVAILABLE',
+  etat: {
+    type: DataTypes.ENUM('neuf', 'bon', 'abîmé', 'très abîmé', 'perdu'),
+    defaultValue: 'neuf',
+  },
+  disponible: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
   barcode: {
     type: DataTypes.STRING,
