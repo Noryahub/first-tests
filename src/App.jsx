@@ -21,6 +21,7 @@ function App() {
   return (
     <Routes>
       {/* Routes publiques */}
+      
       <Route path='/' element={<SignIn />} />
       <Route path='/signup' element={<SignUp />} />
       

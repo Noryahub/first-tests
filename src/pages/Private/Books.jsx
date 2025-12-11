@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { BooksTab } from "@/components/BooksTab"
 import { BookCard } from "@/components/BookCard"
-import {getBooks} from "@/services/BookService"
+import {getBooks, AdminDeleteBook} from "@/services/BookService"
 export const Books = () => {
   const [books,setBooks] = useState([]);
 

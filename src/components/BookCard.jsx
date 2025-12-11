@@ -13,21 +13,22 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Calendar, Edit, Eye, FolderOpen, Trash2 } from "lucide-react";
 import { useState } from "react";
+import EditBookModal from "@/components/EditBookModal"
 
 
 export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatus, className, isActionLoading = false }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-
+  
   const handleImageError = () => {
     setImageError(true);
     setImageLoaded(true);
   };
 
   const handleDeleteConfirm = () => {
-    if (onDelete && book._id) {
-      onDelete(book._id);
+    if (onDelete && book.id) {
+      onDelete(book.id);
     } else {
       console.error("Impossible de supprimer le livre: ID manquant");
     }
@@ -91,7 +92,7 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
 
           {/* Badge de statut avec couleurs appropriées, cliquable pour basculer */}
           <button
-            onClick={() => onToggleStatus && onToggleStatus(book._id, book.status === 'active' ? 'inactive' : 'active')}
+            onClick={() => onToggleStatus && onToggleStatus(book.id, book.status === 'active' ? 'inactive' : 'active')}
             title={book.status === 'active' ? 'Désactiver le livre' : 'Activer le livre'}
             className={cn(
               "absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-semibold focus:outline-none",
@@ -118,7 +119,7 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
 
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
-              <span>{typeof book.availableCopies === "number" ? book.availableCopies : "0"} exemplaires disponibles</span>
+              <span>{typeof book.availableCopies === "number" ? book.availableCopies : (book.copies?.length || 0)} exemplaires disponibles</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -134,15 +135,9 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
         </CardContent>
         
         <CardFooter className="p-4 pt-0 flex gap-2">
-          <Button
-            size="sm"
-            onClick={() => onEdit(book)}
-            className="flex-1 gap-2 bg-neutral-700"
-            disabled={isActionLoading}
-          >
-            <Edit className="w-4 h-4" />
-            Modifier
-          </Button>
+          <EditBookModal
+             book={book}
+          />
           <Button
             size="sm"
             onClick={handleBookDelete}
