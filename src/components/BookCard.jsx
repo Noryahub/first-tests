@@ -139,7 +139,7 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
         <CardFooter className="p-2 pt-0 flex gap-2">
           <Button
             size="sm"
-            onClick={() => navigate(`/private/notifications/${book.id}`)}
+            onClick={() => navigate(`/private/book/${book.id}`)}
             variant="outline"
             className="hover:bg-neutral-400"
             disabled={isActionLoading}

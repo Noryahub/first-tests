@@ -12,6 +12,7 @@ export const createBook = async(payload) =>{
 export const getBookById = async(id) =>{
    try {
     const response = await api.get(`/books/${id}`);
+    return response.data;
    } catch (error) {
     throw new Error("Erreur récupération du livre");
    }

@@ -47,7 +47,7 @@ export const BookDetail = () => {
         {/* Book Image */}
         <Card>
           <CardHeader>
-            <CardTitle>Cover</CardTitle>
+            <CardTitle>Image de couverture</CardTitle>
           </CardHeader>
           <CardContent>
             {book.imageUrl ? (

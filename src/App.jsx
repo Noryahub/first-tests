@@ -16,6 +16,7 @@ import BorrowedBooks from './pages/Private/BorrowedBooks'
 import CurrentUserProfile from './pages/Private/CurrentUserProfile'
 import { LiberianBoard } from './pages/Private/LiberianBoard'
 import { SignUp } from './components/auth/SignUp'
+import BookDetail from './pages/Private/BookDetail'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="books" element={<Books />} />
+        <Route path="book/:id" element={<BookDetail />} />
         <Route path="users" element={<Users />} />
         <Route path="orders" element={<Orders />} />
         <Route path="analytics" element={<Analytics />} />
