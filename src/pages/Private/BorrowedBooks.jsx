@@ -8,7 +8,7 @@ import { AuthContext } from "@/context/ExpressAuthContext";
 import { useContext } from "react";
 
 export const BorrowedBooks = () => {
-    const [userLoans, setUserLoans] = useState([]);
+    const [allLoans, setAllLoans] = useState([]);
     const [userReservations, setUserReservations] = useState([]);
     const [loading, setLoading] = useState(true);
     const { user } = useContext(AuthContext);
@@ -24,7 +24,7 @@ export const BorrowedBooks = () => {
                 user ? getReservationsByUser(user.id) : Promise.resolve([])
             ]);
 
-            setUserLoans(loansData);
+            setAllLoans(loansData);
             setUserReservations(reservationsData);
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -32,6 +32,10 @@ export const BorrowedBooks = () => {
             setLoading(false);
         }
     };
+
+    // Separate active and returned loans
+    const activeLoans = allLoans.filter(loan => !loan.returnDate);
+    const returnedLoans = allLoans.filter(loan => loan.returnDate);
 
     const handleReturn = async (loanId) => {
         try {
@@ -66,14 +70,14 @@ export const BorrowedBooks = () => {
             {/* Current Loans */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Mes Emprunts Actuels ({userLoans.length})</CardTitle>
+                    <CardTitle>Mes Emprunts Actuels ({activeLoans.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {userLoans.length === 0 ? (
+                    {activeLoans.length === 0 ? (
                         <p className="text-gray-500">Aucun emprunt en cours</p>
                     ) : (
                         <div className="space-y-4">
-                            {userLoans.map((loan) => (
+                            {activeLoans.map((loan) => (
                                 <div key={loan.id} className="flex justify-between items-center p-4 border rounded-lg">
                                     <div className="flex-1">
                                         <h4 className="font-semibold text-lg">{loan.copy?.book?.title}</h4>
@@ -86,7 +90,7 @@ export const BorrowedBooks = () => {
                                     <div className="flex flex-col gap-2">
                                         <Button
                                             onClick={() => handleReturn(loan.id)}
-                                            className="bg-pink-600 hover:bg-pink-700"
+                                            className="bg-sky-600 hover:bg-sky-700"
                                         >
                                             Retourner
                                         </Button>
@@ -97,6 +101,32 @@ export const BorrowedBooks = () => {
                     )}
                 </CardContent>
             </Card>
+
+            {/* Returned Loans */}
+            {returnedLoans.length > 0 && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Historique des Emprunts ({returnedLoans.length})</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {returnedLoans.map((loan) => (
+                                <div key={loan.id} className="flex justify-between items-center p-4 border rounded-lg bg-gray-50">
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold text-lg">{loan.copy?.book?.title}</h4>
+                                        <div className="mt-2 space-y-1 text-sm text-gray-600">
+                                            <p>Emprunté le: {new Date(loan.loanDate).toLocaleDateString('fr-FR')}</p>
+                                            <p>Retourné le: {new Date(loan.returnDate).toLocaleDateString('fr-FR')}</p>
+                                            <p>État de l'exemplaire: {loan.copy?.etat === 'abime' ? 'Abîmé' : loan.copy?.etat === 'tres_abime' ? 'Très abîmé' : loan.copy?.etat}</p>
+                                        </div>
+                                        <Badge variant="secondary" className="mt-2">Retourné</Badge>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Current Reservations */}
             <Card>

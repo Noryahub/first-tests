@@ -28,9 +28,34 @@ export const UserView = () => {
                 user ? getReservationsByUser(user.id) : Promise.resolve([])
             ]);
 
-            setBooks(booksData);
-            setUserLoans(loansData);
-            setUserReservations(reservationsData);
+            // Filter out returned loans (loans with returnDate)
+            const activeLoans = loansData.filter(loan => !loan.returnDate);
+            // Filter out cancelled reservations
+            const activeReservations = reservationsData.filter(res => res.status !== 'CANCELLED');
+
+            // Filter books to only show those with available copies
+            const availableBooks = booksData.filter(book => {
+                if (!book.copies || !Array.isArray(book.copies)) {
+                    console.log('Book without copies array:', book.title);
+                    return false;
+                }
+                const hasAvailable = book.copies.some(copy => {
+                    console.log('Copy disponible check:', copy.disponible, typeof copy.disponible);
+                    return copy.disponible === true || copy.disponible === 1 || copy.disponible === 'true';
+                });
+                if (hasAvailable) {
+                    console.log('Book with available copies:', book.title, book.copies.length);
+                }
+                return hasAvailable;
+            });
+
+            console.log('All books:', booksData.length);
+            console.log('Available books:', availableBooks.length);
+            console.log('First available book:', availableBooks[0]);
+
+            setBooks(availableBooks);
+            setUserLoans(activeLoans);
+            setUserReservations(activeReservations);
         } catch (error) {
             console.error("Error fetching user data:", error);
         } finally {
@@ -120,84 +145,90 @@ export const UserView = () => {
     }
 
     return (
-        <div className="flex flex-wrap gap-4 py-4 ">
-            {/* User Info */}
-             <Card className="relative w-90 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
-
-                <CardHeader>
-                    <CardTitle>Mon Profil</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex items-center gap-4">
-                        <div>
-                            <h3 className="text-lg font-semibold">{user?.nom}</h3>
-                            <p className="text-gray-600">{user?.email}</p>
+        <div className="p-6 space-y-6">
+            {/* User Stats Cards */}
+            <div className="flex flex-wrap gap-4">
+                {/* User Info */}
+                <Card className="relative w-85 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                    <CardHeader>
+                        <CardTitle>Mon Profil</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-4">
+                            <div>
+                                <h3 className="text-lg font-semibold">{user?.nom}</h3>
+                                <p className="text-gray-600">{user?.email}</p>
+                            </div>
+                            <Badge
+                                className={`
+                                    px-2 py-1 text-xs font-semibold rounded-md flex items-center gap-1
+                                    ${
+                                        user.role === "ADMIN"
+                                            ? "bg-violet-700 text-white"
+                                            : user.role === "LIBRARIAN"
+                                            ? "bg-yellow-500 text-white"
+                                            : user.role === "MEMBER"
+                                            ? "bg-emerald-700 text-white"
+                                            : "bg-yellow-500 text-black"
+                                    }
+                                `}
+                            >
+                                {(user.role === "ADMIN" || user.role === "LIBRARIAN") && (
+                                    <BadgeCheckIcon className="w-3 h-3" />
+                                )}
+                                {user.role}
+                            </Badge>
                         </div>
-                         <Badge
-                          className={`
-                            px-2 py-1 text-xs font-semibold rounded-md flex items-center gap-1
-                            ${
-                              user.role === "ADMIN"
-                                ? "bg-violet-700 text-white"
-                                : user.role === "LIBRARIAN"
-                                ? "bg-yellow-500 text-white"
-                                : user.role === "MEMBER"
-                                ? "bg-emerald-700 text-white"
-                                : "bg-yellow-500 text-black"
-                            }
-                          `}
-                        >
-                          {(user.role === "ADMIN" || user.role === "LIBRARIAN") && (
-                            <BadgeCheckIcon className="w-3 h-3" />
-                          )}
+                    </CardContent>
+                </Card>
 
-                          {user.role}
-                      </Badge>
-                    </div>
-                </CardContent>
-            </Card>
-                    
-            {/* Current Loans */}
-              <Card className="relative w-90 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                {/* Current Loans */}
+                <Card className="relative w-85 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                    <CardHeader>
+                        <CardTitle>Mes Emprunts Actuels</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-slate-700 mb-2">{userLoans.length}</div>
+                            <p className="text-gray-600">emprunt(s) en cours</p>
+                        </div>
+                    </CardContent>
+                </Card>
 
-                <CardHeader>
-                    <CardTitle>Mes Emprunts Actuels</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-center">
-                        <div className="text-3xl font-bold text-slate-700 mb-2">{userLoans.length}</div>
-                        <p className="text-gray-600">emprunt(s) en cours</p>
-                    </div>
-                </CardContent>
-            </Card>
-
-           {/* Current Reservations */}
-       <Card className="relative w-90 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
-
-               <CardHeader>
-                   <CardTitle>Mes Réservations</CardTitle>
-               </CardHeader>
-               <CardContent>
-                   <div className="text-center">
-                       <div className="text-3xl font-bold text-slate-700 mb-2">{userReservations.length}</div>
-                       <p className="text-gray-600">réservation(s) active(s)</p>
-                   </div>
-               </CardContent>
-           </Card>
+                {/* Current Reservations */}
+                <Card className="relative w-80 h-40 rounded-2xl border border-slate-100 bg-white text-gray-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                    <CardHeader>
+                        <CardTitle>Mes Réservations</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-slate-700 mb-2">{userReservations.length}</div>
+                            <p className="text-gray-600">réservation(s) active(s)</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Available Books */}
-            <div className="gap-6">
-                <h2 className="text-xl font-semibold mb-4">Livres Disponibles</h2>
-                <div className="flex flex-row md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {books.map((book) => (
-                        <BookCardUser
-                            key={book.id}
-                            book={book}
-                            onBorrow={() => handleBorrow(book)}
-                            onReserve={() => handleReserve(book)}
-                        />
-                    ))}
-                </div>
+            <div className="space-y-4">
+                <h2 className="text-2xl font-semibold">Livres Disponibles ({books.length})</h2>
+                {books.length === 0 ? (
+                    <div>
+                        <p className="text-gray-500 text-center py-8">Aucun livre disponible pour le moment</p>
+                        <p className="text-xs text-gray-400 text-center">Vérifiez que des livres avec des exemplaires disponibles existent</p>
+                    </div>
+                ) : (
+                    <div className="flex flex-row  gap-6">
+                        {books.map((book) => (
+                            <BookCardUser
+                                key={book.id}
+                                book={book}
+                                onBorrow={() => handleBorrow(book)}
+                                onReserve={() => handleReserve(book)}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

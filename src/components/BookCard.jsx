@@ -140,7 +140,8 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
           <Button
             size="sm"
             onClick={() => navigate(`/private/notifications/${book.id}`)}
-            className="gap-2 bg-blue-600 hover:bg-blue-700"
+            variant="outline"
+            className="hover:bg-neutral-400"
             disabled={isActionLoading}
           >
             <Info className="w-4 h-4" />
@@ -152,7 +153,7 @@ export function BookCard({ book = {}, onEdit, onDelete, onPreview, onToggleStatu
           <Button
             size="sm"
             onClick={handleBookDelete}
-            className="flex-1 gap-2 bg-pink-600 hover:bg-pink-700"
+            className="flex-1 gap-2 bg-neutral-900 hover:bg-neutral-900"
             disabled={isActionLoading}
           >
             <Trash2 className="w-4 h-4" />

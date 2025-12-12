@@ -96,7 +96,7 @@ export default function EditBookModal({ book, categories, onBookUpdated }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="flex-1 gap-2 bg-neutral-800 text-white" size="sm" ><Edit/>  Edit</Button>
+        <Button className="flex-1 gap-2 bg-sky-600 text-white" size="sm" ><Edit/>  Edit</Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
