@@ -119,7 +119,7 @@ export function BookCardUser({
 
           <Button
             size="sm"
-            onClick={() => navigate(`/private/books/${book.id}`)}
+            onClick={() => navigate(`/private/book/${book.id}`)}
             className="gap-2 bg-sky-600 hover:bg-sky-700 flex-1"
             disabled={isActionLoading}
           >
