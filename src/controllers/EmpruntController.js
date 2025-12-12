@@ -3,7 +3,15 @@ import empruntService from '../Services/EmpruntService.js';
 class EmpruntController {
   async getEmprunts(req, res) {
     try {
-      const emprunts = await empruntService.findAll();
+      const { userId } = req.query;
+      let emprunts;
+
+      if (userId) {
+        emprunts = await empruntService.findByUserId(userId);
+      } else {
+        emprunts = await empruntService.findAll();
+      }
+
       res.json(emprunts);
     } catch (error) {
       res.status(500).json({ error: error.message });
