@@ -6,7 +6,7 @@ import { authorizeRoles } from '../middleware/RoleMiddleware.js';
 const router = express.Router();
 
 router.get('/', bookController.getBooks);
-router.get('/:id', bookController.getBookById);
+router.get('/:id', authenticate, bookController.getBookById);
 
 router.post(
   '/',

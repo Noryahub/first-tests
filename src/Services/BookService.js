@@ -33,7 +33,7 @@ class BookService {
 
   async findById(id) {
     try {
-      const book = await bookRepository.findByPk(id, {
+      const book = await bookRepository.findById(id, {
         include: ['category', 'edition', 'authors', 'copies', 'reservations'],
       });
       return book;
