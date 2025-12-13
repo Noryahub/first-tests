@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button"
 import { StatsCards } from "./StatsCards";
 import { AlarmClock, BookCopy, Clock9, FileStack, Users } from "lucide-react";
@@ -10,7 +10,7 @@ import {ExemplairesTab} from "@/components/ExemplairesTab"
 export const Dashboard = () =>{
   // Récupération de l'utilisateur courant depuis le contexte de express
   const { user, loading } = React.useContext(AuthContext);
-
+  //const [userStats, setUserStats] = useState
   console.log("DASHBOARD", user, loading)
     return(
       <><div className="flex flex-col gap-4">
